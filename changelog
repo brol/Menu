@@ -1,3 +1,8 @@
+v1.9 (12-03-2016) - Pierre Van Glabeke
+* ajout fonction export/import (single et full), merci à amalgame et adjaya
+* intégration fork pour grayscale (merci mrbiron : https://github.com/mrbidon/menu)
+* dc2.9 requis
+
 v1.8.7 (05-03-2015) - Pierre Van Glabeke
 * reprise du menu avec l'accord de l'auteur initial
 * ajout identification widget

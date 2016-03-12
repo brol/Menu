@@ -2,7 +2,7 @@
 # -- BEGIN LICENSE BLOCK ----------------------------------
 # This file is part of Menu, a plugin for Dotclear 2.
 #
-# Copyright (c) 2009-2015 Benoît Grelier and contributors
+# Copyright (c) 2009-2016 Benoît Grelier and contributors
 # Licensed under the GPL version 2.0 license.
 # See LICENSE file or
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -31,46 +31,82 @@ $core->auth->setPermissionType('menu',__('manage menu'));
 
 require dirname(__FILE__).'/_widgets.php';
 
-# Import-export :
-/*
-$core->addBehavior('exportFull',array('menuBehaviors','exportFull'));
-$core->addBehavior('exportSingle',array('menuBehaviors','exportSingle'));
-$core->addBehavior('importInit',array('menuBehaviors','importInit'));
-$core->addBehavior('importSingle',array('menuBehaviors','importSingle'));
-$core->addBehavior('importFull',array('menuBehaviors','importFull'));
+# Enregistrement des fonctions d'exportation
+$core->addBehavior('exportFull',array('menuClass','exportFull'));
+$core->addBehavior('exportSingle',array('menuClass','exportSingle'));
+$core->addBehavior('importInit',array('menuClass','importInit'));
+$core->addBehavior('importFull',array('menuClass','importFull'));
+$core->addBehavior('importSingle',array('menuClass','importSingle'));
 
-class menuBehaviors
+class menuClass
 {
+	# Full export behavior
 	public static function exportFull($core,$exp)
 	{
 		$exp->exportTable('menu');
 	}
 
+	# Single blog export behavior
 	public static function exportSingle($core,$exp,$blog_id)
 	{
 		$exp->export('menu',
-			'SELECT * FROM '.$this->core->prefix.'menu '.
-			"WHERE blog_id = '".$blog_id."'"
+			'SELECT * '.
+			'FROM '.$core->prefix.'menu '.
+			'WHERE blog_id = "'.$blog_id.'"'
 		);
 	}
-	
+
+	# importInit behavior
 	public static function importInit($bk,$core)
 	{
+		$strReq =
+		'TRUNCATE TABLE '.$core->prefix.'menu';
+		$core->con->execute($strReq);
+
 		$bk->cur_menu = $core->con->openCursor($core->prefix.'menu');
-		$bk->menu = new dcBlogMenu($core);	
 	}
-	
+
+	# Full blog import behavior
 	public static function importFull($line,$bk,$core)
 	{
-	
-	}
-	
-	public static function importSingle($line,$bk,$core)
-	{
-		if ($line->__name == menu) {
-			$menu->blog_id = $bk->blog_id;
+        if ($line->__name == 'menu') {
 
-		}
-	}
+        $bk->cur_menu->clean();
+        $bk->cur_menu->link_id   = (integer) $line->link_id;
+  			$bk->cur_menu->blog_id   = (string) $line->blog_id;
+  			$bk->cur_menu->link_href   = (string) $line->link_href;
+  			$bk->cur_menu->link_title   = (string) $line->link_title;
+  			$bk->cur_menu->link_desc   = (string) $line->link_desc;
+  			$bk->cur_menu->link_lang   = (string) $line->link_lang;
+  			$bk->cur_menu->link_class   = (string) $line->link_class;
+        $bk->cur_menu->link_position   = (integer) $line->link_position;
+        $bk->cur_menu->link_level   = (integer) $line->link_level;
+        $bk->cur_menu->link_auto   = (integer) $line->link_auto;
+  			$bk->cur_menu->link_limit   = (integer) $line->link_limit;
+
+        $bk->cur_menu->insert();
+        }
+    }
+
+  # Single blog import behavior
+  	public static function importSingle($line,$bk,$core)
+  	{
+        if ($line->__name == 'menu') {
+
+        $bk->cur_menu->clean();
+        $bk->cur_menu->link_id   = (integer) $line->link_id;
+  			$bk->cur_menu->blog_id   = (string) $core->blog->id;
+  			$bk->cur_menu->link_href   = (string) $line->link_href;
+  			$bk->cur_menu->link_title   = (string) $line->link_title;
+  			$bk->cur_menu->link_desc   = (string) $line->link_desc;
+  			$bk->cur_menu->link_lang   = (string) $line->link_lang;
+  			$bk->cur_menu->link_class   = (string) $line->link_class;
+        $bk->cur_menu->link_position   = (integer) $line->link_position;
+        $bk->cur_menu->link_level   = (integer) $line->link_level;
+        $bk->cur_menu->link_auto   = (integer) $line->link_auto;
+  			$bk->cur_menu->link_limit   = (integer) $line->link_limit;
+
+        $bk->cur_menu->insert();
+        }
+    }
 }
-//*/
