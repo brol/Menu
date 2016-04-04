@@ -228,7 +228,7 @@ class tplMenu
 			$a_span = $style_theme['a_span'];
 			if($level < $old_level){
 				$style_a = $style_theme['li_a'.$style];
-				$a_span = $style_theme['a_span']."<span class='caret'>";
+				$a_span = $style_theme['a_span']."<span class='caret'></span>";
 			}
 			$link =
 			'<a href="'.html::escapeHTML($href).'"'.stripslashes($style_a).

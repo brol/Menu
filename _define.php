@@ -14,7 +14,7 @@ $this->registerModule(
 	/* Name */			"Menu",
 	/* Description*/		"Manage your menu",
 	/* Author */		"Adjaya, Pierre Van Glabeke",
-	/* Version */		'1.9',
+	/* Version */		'1.9.1',
 	/* Properties */
 	array(
 		'permissions' => 'menu',
