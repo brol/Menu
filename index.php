@@ -44,7 +44,7 @@ if (!empty($_POST['add_link']))
 	$link_desc = $_POST['link_desc'];
 	$link_lang = $_POST['link_lang'];
 	$link_class = $_POST['link_class'];
-	
+
 	try {
 		$menu->addLink($link_title,$link_href,$link_level,$link_auto,0,$link_desc,$link_lang,$link_class);
 		http::redirect($p_url.'&addlink=1');
@@ -65,7 +65,7 @@ if (!empty($_POST['removeaction']) && !empty($_POST['remove'])) {
 			break;
 		}
 	}
-	
+
 	if (!$core->error->flag()) {
 		http::redirect($p_url.'&removed=1');
 	}
@@ -88,7 +88,7 @@ if (!empty($_POST['updateitems']))
 	{
 		foreach ($order as $pos => $l) {
 			$pos = ((integer) $pos)+1;
-				
+
 			try {
 				$menu->updateOrder($l,$pos);
 			} catch (Exception $e) {
@@ -109,7 +109,7 @@ if (!empty($_POST['updateitems']))
 			}
 		}
 	}
-	
+
 	if (!$core->error->flag()) {
 		http::redirect($p_url.'&newconfig=1');
 	}
@@ -125,49 +125,17 @@ try {
 ?>
 <html>
 <head>
-<title><?php echo $page_title; ?></title>
-  <?php echo dcPage::jsToolMan(); ?>
+	<title><?php echo $page_title; ?></title>
   <?php echo dcPage::jsConfirmClose('links-form','add-link-form'); ?>
-  <script type="text/javascript">
-  //<![CDATA[
-  
-  var dragsort = ToolMan.dragsort();
-  $(function() {
-  	dragsort.makeTableSortable($("#links-list").get(0),
-  	dotclear.sortable.setHandle,dotclear.sortable.saveOrder);
-	
-	$('.checkboxes-helpers').each(function() {
-		dotclear.checkboxesHelpers(this);
-	});
-  });
-  
-  dotclear.sortable = {
-	  setHandle: function(item) {
-		var handle = $(item).find('td.handle').get(0);
-		while (handle.firstChild) {
-			handle.removeChild(handle.firstChild);
-		}
-		
-		item.toolManDragGroup.setHandle(handle);
-		handle.className = handle.className+' handler';
-	  },
-	  
-	  saveOrder: function(item) {
-		var group = item.toolManDragGroup;
-		var order = document.getElementById('links_order');
-		group.register('dragend', function() {
-			order.value = '';
-			items = item.parentNode.getElementsByTagName('tr');
-			
-			for (var i=0; i<items.length; i++) {
-				order.value += items[i].id.substr(2)+',';
-			}
-		});
-	  }
-  };
-  //]]>
-  </script>
-  <?php echo dcPage::jsPageTabs($default_tab); ?>
+	<?php
+		$core->auth->user_prefs->addWorkspace('accessibility');
+	    	if (!$core->auth->user_prefs->accessibility->nodragdrop) {
+	    	echo
+	    		dcPage::jsLoad('js/jquery/jquery-ui.custom.js').
+	    		dcPage::jsLoad('index.php?pf=menu/menu.js');
+	    	}
+				echo dcPage::jsPageTabs($default_tab);
+	?>
 </head>
 
 <body>
@@ -176,16 +144,16 @@ try {
 		array(
 			html::escapeHTML($core->blog->name) => '',
 			'<span class="page-title">'.$page_title.'</span>' => ''
-		));
-if (!empty($_GET['newconfig'])) {
-  dcPage::success(__('Items has been successfully updated'));
-}
-if (!empty($_GET['removed'])) {
-  dcPage::success(__('Items have been successfully removed.'));
-}
-if (!empty($_GET['addlink'])) {
-  dcPage::success(__('Menu item has been successfully created.'));
-}
+	));
+  if (!empty($_GET['newconfig'])) {
+  	dcPage::success(__('Items has been successfully updated'));
+	}
+	if (!empty($_GET['removed'])) {
+  	dcPage::success(__('Items have been successfully removed.'));
+	}
+	if (!empty($_GET['addlink'])) {
+  	dcPage::success(__('Menu item has been successfully created.'));
+	}
 ?>
 
 <div class="multi-part" title="<?php echo __('Menu'); ?>" id="menu">
@@ -231,24 +199,37 @@ while ($rs->fetch())
 	//		$link_auto = $k;
 	//	}
 	//}
-	
+
+	$indent = $style_td = '';
+	if ($rs->link_level > 0) {
+		$indent = str_repeat("&nbsp;&nbsp;&nbsp", $rs->link_level-1);
+	}
+	else {
+		$style_td = 'background:linen;';
+	}
+
 	echo
 	'<tr class="line" id="l_'.$rs->link_id.'">'.
-	'<td class="handle minimal">'.form::field(array('order['.$rs->link_id.']'),2,5,$position).'</td>'.
+	'<td class="handle minimal">'.form::field(
+		array('order['.$rs->link_id.']'),2,5,$position,'position','',false,'title="'.
+		__('position').'"').'</td>'.
 	'<td class="nowrap" scope="row">'.
-	form::field(array('levels['.$rs->link_id.']'),2,5,html::escapeHTML($rs->link_level)).'</td>'.
-	'<td class="minimal">'.form::checkbox(array('remove[]'),$rs->link_id).'</td>';
+		form::field(array('levels['.$rs->link_id.']'),2,5,html::escapeHTML($rs->link_level)).'</td>'.
+	'<td class="minimal">'.
+	form::checkbox(
+		array('remove[]'),$rs->link_id,'','','',false,'title="'.__('select this link').'"').'</td>';
+
 
 		echo
-		'<td><a href="'.$p_url.'&amp;edit=1&amp;id='.$rs->link_id.'">'.
-		html::escapeHTML($rs->link_title).'</a></td>'.
-		
+		'<td style="'.$style_td.'">'.$indent.'<a href="'.$p_url.'&amp;edit=1&amp;id='.$rs->link_id.'">'.
+				html::escapeHTML($rs->link_title).'</a></td>'.
+
 		//'<td>'.html::escapeHTML($link_auto).'</td>'.
-		'<td>'.html::escapeHTML($rs->link_desc).'</td>'.
+		'<td>'.text::cutString(html::escapeHTML($rs->link_desc), 30).'...</td>'.
 		'<td>'.html::escapeHTML($rs->link_href).'</td>'.
 		'<td>'.html::escapeHTML($rs->link_lang).'</td>'.
 		'<td>'.html::escapeHTML($class).'</td>';
-	
+
 	echo '</tr>';
 }
 ?>
@@ -273,14 +254,16 @@ __('Are you sure you want to remove selected menu items?')); ?>');" /></p>
 
 <?php
 echo
-'<div class="multi-part" id="add-link" title="'.__('Add an item').'">'.
+'<div class="multi-part clear" id="add-link" title="'.__('Add an item').'">'.
 '<form action="plugin.php" method="post" id="add-link-form">'.
 '<div class="fieldset two-cols"><h4>'.__('New item').'</h4>'.
-'<p class="field"><label class="classic required" for="link_title"><abbr title="'.__('Required field').'">*</abbr> '.__('Label of item menu:').' </label>'.
+'<p class="field"><label class="classic required" for="link_title"><abbr title="'.
+__('Required field').'">*</abbr> '.__('Label of item menu:').' </label>'.
 form::field('link_title',50,255,$link_title,'',1).
 '</p>'.
 
-'<p class="field"><label class="classic required" for="link_href"><abbr title="'.__('Required field').'">*</abbr> '.__('URL of item menu:').' </label>'.
+'<p class="field"><label class="classic required" for="link_href"><abbr title="'.
+__('Required field').'">*</abbr> '.__('URL of item menu:').' </label>'.
 form::field('link_href',50,255,$link_href,'',2).
 '</p>'.
 
