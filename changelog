@@ -1,5 +1,8 @@
+v1.9.3 (08-01-2018) - Pierre Van Glabeke
+* ajout aide pour menu.nomdudossierdutheme.php
+
 v1.9.2 (08-12-2016) - adjaya
-* menu plugin now uses jQuery UI sortable for links ordering via drag'n'drop
+*menu plugin now uses jQuery UI sortable for links ordering via drag'n'drop
 
 v1.9.1 (04-04-2016) - Pierre Van Glabeke
 * validation w3c
