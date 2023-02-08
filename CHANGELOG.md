@@ -1,3 +1,6 @@
+v2.0.2 (09-02-2023) - Adjaya, Pierre Van Glabeke
+* dc2.24
+
 v1.9.3 (08-01-2018) - Pierre Van Glabeke
 * ajout aide pour menu.nomdudossierdutheme.php
 

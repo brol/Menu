@@ -1,13 +1,14 @@
 <?php
-# -- BEGIN LICENSE BLOCK ----------------------------------
-# This file is part of Menu, a plugin for Dotclear 2.
-#
-# Copyright (c) 2009-2018 Benoît Grelier and contributors
-# Licensed under the GPL version 2.0 license.
-# See LICENSE file or
-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-#
-# -- END LICENSE BLOCK ------------------------------------
+/**
+ * @brief Menu, a plugin for Dotclear 2
+ *
+ * @package Dotclear
+ * @subpackage Plugin
+ *
+ * @author Benoît Grelier and contributors
+ *
+ * @copyright GPL-2.0 https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 if (!defined('DC_RC_PATH')) { return; }
 
 class dcBlogMenu
@@ -18,8 +19,8 @@ class dcBlogMenu
 	
 	public function __construct($blog)
 	{
-		$this->blog =& $blog;
-		$this->con =& $blog->con;
+		$this->blog = $blog;
+		$this->con = $blog->con;
 		$this->table = $this->blog->prefix.'menu';
 	}
 
@@ -59,7 +60,7 @@ class dcBlogMenu
 			$strReq .= 'AND link_level <= '.(integer) $params['link_level'].' ';
 		}
 
-		if (!$GLOBALS['core']->auth->userID()) {
+		if (!defined('DC_CONTEXT_ADMIN')) {
 			$link_out = 0;	
 			$strReq .= 'AND link_level > '.(integer) $link_out.' ';
 		}

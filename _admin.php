@@ -1,42 +1,55 @@
 <?php
-# -- BEGIN LICENSE BLOCK ----------------------------------
-# This file is part of Menu, a plugin for Dotclear 2.
-#
-# Copyright (c) 2009-2018 Benoît Grelier and contributors
-# Licensed under the GPL version 2.0 license.
-# See LICENSE file or
-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-#
-# -- END LICENSE BLOCK ------------------------------------
+/**
+ * @brief Menu, a plugin for Dotclear 2
+ *
+ * @package Dotclear
+ * @subpackage Plugin
+ *
+ * @author Benoît Grelier and contributors
+ *
+ * @copyright GPL-2.0 https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 if (!defined('DC_CONTEXT_ADMIN')) { return; }
 
-$core->addBehavior('adminDashboardFavorites','menuDashboardFavorites');
+// Admin dashbaord favorite
+dcCore::app()->addBehavior('adminDashboardFavoritesV2', function ($favs) {
+    $favs->register(basename(__DIR__), [
+        'title'       => __('Menu'),
+        'url'         => dcCore::app()->adminurl->get('admin.plugin.' . basename(__DIR__)),
+        'small-icon'  => dcPage::getPF(basename(__DIR__) . '/icon.png'),
+        'large-icon'  => dcPage::getPF(basename(__DIR__) . '/icon-big.png'),
+        'permissions' => dcCore::app()->auth->makePermissions([
+            dcAuth::PERMISSION_USAGE,
+            dcAuth::PERMISSION_CONTENT_ADMIN,
+        ]),
+    ]);
+});
 
-function menuDashboardFavorites($core,$favs)
-{
-	$favs->register('menu', array(
-		'title' => __('Menu'),
-		'url' => 'plugin.php?p=menu',
-		'small-icon' => 'index.php?pf=menu/icon.png',
-		'large-icon' => 'index.php?pf=menu/icon-big.png',
-		'permissions' => 'usage,contentadmin'
-	));
-}
+// Admin sidebar menu
+dcCore::app()->menu[dcAdmin::MENU_BLOG]->addItem(
+    __('Menu'),
+    dcCore::app()->adminurl->get('admin.plugin.' . basename(__DIR__)),
+    dcPage::getPF(basename(__DIR__) . '/icon.png'),
+    preg_match(
+        '/' . preg_quote(dcCore::app()->adminurl->get('admin.plugin.' . basename(__DIR__))) . '(&.*)?$/',
+        $_SERVER['REQUEST_URI']
+    ),
+    dcCore::app()->auth->check(dcCore::app()->auth->makePermissions([
+        dcAuth::PERMISSION_USAGE,
+        dcAuth::PERMISSION_CONTENT_ADMIN,
+    ]), dcCore::app()->blog->id)
+);
 
-$_menu['Blog']->addItem(__('Menu'),'plugin.php?p=menu','index.php?pf=menu/icon.png',
-                preg_match('/plugin.php\?p=menu(&.*)?$/',$_SERVER['REQUEST_URI']),
-                $core->auth->check('usage,contentadmin',$core->blog->id));
-
-$core->auth->setPermissionType('menu',__('manage menu'));
+dcCore::app()->auth->setPermissionType('menu',__('manage menu'));
 
 require dirname(__FILE__).'/_widgets.php';
 
 # Enregistrement des fonctions d'exportation
-$core->addBehavior('exportFull',array('menuClass','exportFull'));
-$core->addBehavior('exportSingle',array('menuClass','exportSingle'));
-$core->addBehavior('importInit',array('menuClass','importInit'));
-$core->addBehavior('importFull',array('menuClass','importFull'));
-$core->addBehavior('importSingle',array('menuClass','importSingle'));
+dcCore::app()->addBehavior('exportFull',array('menuClass','exportFull'));
+dcCore::app()->addBehavior('exportSingle',array('menuClass','exportSingle'));
+dcCore::app()->addBehavior('importInit',array('menuClass','importInit'));
+dcCore::app()->addBehavior('importFull',array('menuClass','importFull'));
+dcCore::app()->addBehavior('importSingle',array('menuClass','importSingle'));
 
 class menuClass
 {
@@ -51,7 +64,7 @@ class menuClass
 	{
 		$exp->export('menu',
 			'SELECT * '.
-			'FROM '.$core->prefix.'menu '.
+			'FROM '.dcCore::app()->prefix.'menu '.
 			'WHERE blog_id = "'.$blog_id.'"'
 		);
 	}
@@ -60,10 +73,10 @@ class menuClass
 	public static function importInit($bk,$core)
 	{
 		$strReq =
-		'TRUNCATE TABLE '.$core->prefix.'menu';
-		$core->con->execute($strReq);
+		'TRUNCATE TABLE '.dcCore::app()->prefix.'menu';
+		dcCore::app()->con->execute($strReq);
 
-		$bk->cur_menu = $core->con->openCursor($core->prefix.'menu');
+		$bk->cur_menu = dcCore::app()->con->openCursor(dcCore::app()->prefix.'menu');
 	}
 
 	# Full blog import behavior
@@ -95,7 +108,7 @@ class menuClass
 
         $bk->cur_menu->clean();
         $bk->cur_menu->link_id   = (integer) $line->link_id;
-  			$bk->cur_menu->blog_id   = (string) $core->blog->id;
+  			$bk->cur_menu->blog_id   = (string) dcCore::app()->blog->id;
   			$bk->cur_menu->link_href   = (string) $line->link_href;
   			$bk->cur_menu->link_title   = (string) $line->link_title;
   			$bk->cur_menu->link_desc   = (string) $line->link_desc;

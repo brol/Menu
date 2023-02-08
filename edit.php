@@ -1,13 +1,14 @@
 <?php
-# -- BEGIN LICENSE BLOCK ----------------------------------
-# This file is part of Menu, a plugin for Dotclear 2.
-#
-# Copyright (c) 2009-2018 Benoît Grelier and contributors
-# Licensed under the GPL version 2.0 license.
-# See LICENSE file or
-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-#
-# -- END LICENSE BLOCK ------------------------------------
+/**
+ * @brief Menu, a plugin for Dotclear 2
+ *
+ * @package Dotclear
+ * @subpackage Plugin
+ *
+ * @author Benoît Grelier and contributors
+ *
+ * @copyright GPL-2.0 https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 if (!defined('DC_CONTEXT_ADMIN')) { return; }
 $page_title = __('Menu');
 
@@ -19,11 +20,11 @@ $id = $_REQUEST['id'];
 try {
 	$rs = $menu->getLink($id);
 } catch (Exception $e) {
-	$core->error->add($e->getMessage());
+	dcCore::app()->error->add($e->getMessage());
 }
 
-if (!$core->error->flag() && $rs->isEmpty()) {
-	$core->error->add(__('No such link or title'));
+if (!dcCore::app()->error->flag() && $rs->isEmpty()) {
+	dcCore::app()->error->add(__('No such link or title'));
 } else {
 	$link_title = $rs->link_title;
 	$link_href = $rs->link_href;
@@ -62,7 +63,7 @@ if (isset($rs) && !empty($_POST['edit_link']))
 		$menu->updateLink($id,$link_title,$link_href,$link_level,$link_auto,$link_desc,$link_lang,$link_class);
 		http::redirect($p_url.'&edit=1&id='.$id.'&upd=1');
 	} catch (Exception $e) {
-		$core->error->add($e->getMessage());
+		dcCore::app()->error->add($e->getMessage());
 	}
 }
 
@@ -76,7 +77,7 @@ if (isset($rs) && !empty($_POST['edit_link']))
 <?php
 	echo dcPage::breadcrumb(
 		array(
-			html::escapeHTML($core->blog->name) => '',
+			html::escapeHTML(dcCore::app()->blog->name) => '',
 			$page_title => $p_url,
 			__('Changing the item') => ''
 		));
@@ -119,7 +120,7 @@ echo '<p><a class="back" href="'.$p_url.'">'.__('Return to menu').'</a></p>';
 	'<p>'.form::hidden('p','menu').
 	form::hidden('edit',1).
 	form::hidden('id',$id).
-	$core->formNonce().
+	dcCore::app()->formNonce().
 	'<input type="submit" name="edit_link" class="submit" value="'.__('Save').'"/></p>'.
 
 	'</form>';

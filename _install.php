@@ -1,24 +1,25 @@
 <?php
-# -- BEGIN LICENSE BLOCK ----------------------------------
-# This file is part of Menu, a plugin for Dotclear 2.
-#
-# Copyright (c) 2009-2018 Benoît Grelier and contributors
-# Licensed under the GPL version 2.0 license.
-# See LICENSE file or
-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-#
-# -- END LICENSE BLOCK ------------------------------------
+/**
+ * @brief Menu, a plugin for Dotclear 2
+ *
+ * @package Dotclear
+ * @subpackage Plugin
+ *
+ * @author Benoît Grelier and contributors
+ *
+ * @copyright GPL-2.0 https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 if (!defined('DC_CONTEXT_ADMIN')) { return; }
 
-$version = $core->plugins->moduleInfo('menu','version');
+$version = dcCore::app()->plugins->moduleInfo('menu','version');
 
-if (version_compare($core->getVersion('menu'),$version,'>=')) {
+if (version_compare(dcCore::app()->getVersion('menu'),$version,'>=')) {
 	return;
 }
 
 /* Database schema
 -------------------------------------------------------- */
-$s = new dbStruct($core->con,$core->prefix);
+$s = new dbStruct(dcCore::app()->con,dcCore::app()->prefix);
 
 $s->menu
 	->link_id		('bigint',	0,		false)
@@ -40,8 +41,8 @@ $s->menu->index('idx_menu_blog_id','btree','blog_id');
 $s->menu->reference('fk_menu_blog','blog_id','blog','blog_id','cascade','cascade');
 
 # Schema installation
-$si = new dbStruct($core->con,$core->prefix);
+$si = new dbStruct(dcCore::app()->con,dcCore::app()->prefix);
 $changes = $si->synchronize($s);
 
-$core->setVersion('menu',$version);
+dcCore::app()->setVersion('menu',$version);
 return true;

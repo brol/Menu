@@ -1,18 +1,21 @@
 <?php
-# -- BEGIN LICENSE BLOCK ----------------------------------
-# This file is part of Menu, a plugin for Dotclear 2.
-#
-# Copyright (c) 2009-2018 Benoît Grelier and contributors
-# Licensed under the GPL version 2.0 license.
-# See LICENSE file or
-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-#
-# -- END LICENSE BLOCK ------------------------------------
+/**
+ * @brief Menu, a plugin for Dotclear 2
+ *
+ * @package Dotclear
+ * @subpackage Plugin
+ *
+ * @author Benoît Grelier and contributors
+ *
+ * @copyright GPL-2.0 https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 if (!defined('DC_CONTEXT_ADMIN')) { return; }
 
 require dirname(__FILE__).'/class.dc.blogmenu.php';
 
-$menu = new dcBlogMenu($core->blog);
+$menu = new dcBlogMenu(dcCore::app()->blog);
+
+$p_url = 'plugin.php?p=' . basename(dirname(__FILE__));
 
 $page_title = __('Menu');
 
@@ -49,7 +52,7 @@ if (!empty($_POST['add_link']))
 		$menu->addLink($link_title,$link_href,$link_level,$link_auto,0,$link_desc,$link_lang,$link_class);
 		http::redirect($p_url.'&addlink=1');
 	} catch (Exception $e) {
-		$core->error->add($e->getMessage());
+		dcCore::app()->error->add($e->getMessage());
 		$default_tab = 'add-link';
 	}
 }
@@ -61,12 +64,12 @@ if (!empty($_POST['removeaction']) && !empty($_POST['remove'])) {
 		try {
 			$menu->delItem($v);
 		} catch (Exception $e) {
-			$core->error->add($e->getMessage());
+			dcCore::app()->error->add($e->getMessage());
 			break;
 		}
 	}
 
-	if (!$core->error->flag()) {
+	if (!dcCore::app()->error->flag()) {
 		http::redirect($p_url.'&removed=1');
 	}
 }
@@ -92,7 +95,7 @@ if (!empty($_POST['updateitems']))
 			try {
 				$menu->updateOrder($l,$pos);
 			} catch (Exception $e) {
-				$core->error->add($e->getMessage());
+				dcCore::app()->error->add($e->getMessage());
 			}
 		}
 	}
@@ -104,13 +107,13 @@ if (!empty($_POST['updateitems']))
 			try {
 				$menu->updateLevel($k,$v);
 			} catch (Exception $e) {
-				$core->error->add($e->getMessage());
+				dcCore::app()->error->add($e->getMessage());
 				break;
 			}
 		}
 	}
 
-	if (!$core->error->flag()) {
+	if (!dcCore::app()->error->flag()) {
 		http::redirect($p_url.'&newconfig=1');
 	}
 }
@@ -119,7 +122,7 @@ if (!empty($_POST['updateitems']))
 try {
 	$rs = $menu->getLinks();
 } catch (Exception $e) {
-	$core->error->add($e->getMessage());
+	dcCore::app()->error->add($e->getMessage());
 }
 
 ?>
@@ -128,8 +131,8 @@ try {
 	<title><?php echo $page_title; ?></title>
   <?php echo dcPage::jsConfirmClose('links-form','add-link-form'); ?>
 	<?php
-		$core->auth->user_prefs->addWorkspace('accessibility');
-	    	if (!$core->auth->user_prefs->accessibility->nodragdrop) {
+		dcCore::app()->auth->user_prefs->addWorkspace('accessibility');
+	    	if (!dcCore::app()->auth->user_prefs->accessibility->nodragdrop) {
 	    	echo
 	    		dcPage::jsLoad('js/jquery/jquery-ui.custom.js').
 	    		dcPage::jsLoad('index.php?pf=menu/menu.js');
@@ -142,7 +145,7 @@ try {
 <?php
 	echo dcPage::breadcrumb(
 		array(
-			html::escapeHTML($core->blog->name) => '',
+			html::escapeHTML(dcCore::app()->blog->name) => '',
 			'<span class="page-title">'.$page_title.'</span>' => ''
 	));
   if (!empty($_GET['newconfig'])) {
@@ -240,7 +243,7 @@ while ($rs->fetch())
 <p class="col"><?php echo form::hidden('links_order','');
 echo form::hidden('links_levels','');
 echo form::hidden(array('p'),'menu');
-echo $core->formNonce(); ?>
+echo dcCore::app()->formNonce(); ?>
 <input type="submit" name="updateitems" value="<?php echo __('Update menu'); ?>" /></p>
 
 <p class="col right"><input class="delete" type="submit" name="removeaction"
@@ -291,7 +294,7 @@ form::field('link_class',50,32,$link_class,'',6).
 '</div>'.
 
 '<p>'.form::hidden(array('p'),'menu').
-$core->formNonce().
+dcCore::app()->formNonce().
 '<input type="submit" name="add_link" value="'.__('Save').'" tabindex="7" /></p>'.
 '</form>'.
 '</div>';

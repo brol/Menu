@@ -1,28 +1,27 @@
 <?php
-# -- BEGIN LICENSE BLOCK ----------------------------------
-# This file is part of Menu, a plugin for Dotclear 2.
-#
-# Copyright (c) 2009-2018 Benoît Grelier and contributors
-# Licensed under the GPL version 2.0 license.
-# See LICENSE file or
-# http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-#
-# -- END LICENSE BLOCK ------------------------------------
+/**
+ * @brief Menu, a plugin for Dotclear 2
+ *
+ * @package Dotclear
+ * @subpackage Plugin
+ *
+ * @author Benoît Grelier and contributors
+ *
+ * @copyright GPL-2.0 https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ */
 if (!defined('DC_RC_PATH')) { return; }
 # Menu template functions
 require_once dirname(__FILE__).'/class.dc.blogmenu.php';
 require dirname(__FILE__).'/_widgets.php';
-$core->tpl->addValue('Menu',array('tplMenu','menu'));
-$core->tpl->addValue('MenuFreshy',array('tplMenu','menuFreshy'));
+dcCore::app()->tpl->addValue('Menu',array('tplMenu','menu'));
+dcCore::app()->tpl->addValue('MenuFreshy',array('tplMenu','menuFreshy'));
 class tplMenu
 {
 	# Get current theme configuration for menu
 	public static function loadStyle($load_style_widget=false)
 	{
-		global $core;
-
 		$current_theme = tplMenu::getTheme();
-		$config = path::fullFromRoot($core->blog->settings->system->themes_path.'/'.$current_theme,DC_ROOT).'/menu.'.$current_theme.'.php';
+		$config = path::fullFromRoot(dcCore::app()->blog->settings->system->themes_path.'/'.$current_theme,DC_ROOT).'/menu.'.$current_theme.'.php';
 
 		if (!file_exists($config)) {
 			$config = dirname(__FILE__).'/themes-config/menu.'.$current_theme.'.php';
@@ -73,8 +72,7 @@ class tplMenu
 	}
 	public static function getTheme()
 	{
-		global $core;
-		$theme = $core->blog->settings->system->theme;
+		$theme = dcCore::app()->blog->settings->system->theme;
 		return $theme;
 	}
 	#  Use {{tpl:MenuFreshy}}
@@ -127,7 +125,7 @@ class tplMenu
 	{
 		$params['level'] = $level;
 		$params['desc'] = true;
-		$menu = new dcBlogMenu($GLOBALS['core']->blog);
+		$menu = new dcBlogMenu(dcCore::app()->blog);
 		try {
 			$links = $menu->getLinks($params);
 		} catch (Exception $e) {
@@ -140,7 +138,7 @@ class tplMenu
 		$params = array();
 		$params['link_level'] = 1;
 
-		$menu = new dcBlogMenu($GLOBALS['core']->blog);
+		$menu = new dcBlogMenu(dcCore::app()->blog);
 		try {
 			$linkslevels = $menu->getLinksLevels($params);
 		} catch (Exception $e) {
@@ -160,7 +158,7 @@ class tplMenu
 		$old_level = $child_level = 1;
 		$style = $list = '';
 		# For detect if home
-		$home_url = html::stripHostURL($GLOBALS['core']->blog->url);
+		$home_url = html::stripHostURL(dcCore::app()->blog->url);
 		$home_directory = dirname($home_url);
 		if ( $home_directory != '/') { $home_directory = $home_directory.'/'; }
 		foreach ($links->rows() as $k => $v)
@@ -375,11 +373,10 @@ class tplMenu
 	# Widget function
 	public static function menuWidget($w)
 	{
-		global $core;
 		if ($w->offline)
 			return;
-		if (($w->homeonly == 1 && $core->url->type != 'default') ||
-			($w->homeonly == 2 && $core->url->type == 'default'))
+		if (($w->homeonly == 1 && dcCore::app()->url->type != 'default') ||
+			($w->homeonly == 2 && dcCore::app()->url->type == 'default'))
 			return;
 
 		$style_widget = true;
@@ -398,7 +395,7 @@ class tplMenu
 
 	public static function getLevels($params)
 	{
-		$menu = new dcBlogMenu($GLOBALS['core']->blog);
+		$menu = new dcBlogMenu(dcCore::app()->blog);
 		try {
 			$linkslevels = $menu->getLinksLevels($params);
 		} catch (Exception $e) {
